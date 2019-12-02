@@ -1,25 +1,27 @@
-import Koa from 'koa';
+
+import Server from './server';
+import logger from './utils/logger';
 import Router from 'koa-router';
 
-import logger from 'koa-logger';
-import json from 'koa-json';
+require('dotenv').config();
 
-import 'reflect-metadata';
+const { PORT } = process.env;
 
-const app = new Koa();
+try {
+  const app = new Server();
+  app.runServer(PORT ?? "8080");
+} catch (error) {
+  logger.error({
+    level: 'error',
+    message: `Server error: ${error.message}`,
+    service: 'chloe-server',
+  });
+}
+
 const router = new Router();
 
 router.get('/', async (ctx, next) => {
   ctx.body = { msg: 'Hello, world' };
 
   await next();
-});
-
-app.use(json());
-app.use(logger());
-
-app.use(router.routes()).use(router.allowedMethods());
-
-app.listen(3000, () => {
-  console.log('Koa started');
 });
